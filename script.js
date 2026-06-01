@@ -97,9 +97,11 @@ function generateICS(event) {
 
 function downloadICS(event) {
   const ics = generateICS(event);
-  // data: URI opens the Calendar app directly on iOS Safari
-  const uri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
-  window.open(uri, '_blank');
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  // Direct navigation triggers Calendar app on iOS instead of opening a tab
+  window.location.href = url;
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 
 // ── State ────────────────────────────────────────────────────────────────────
