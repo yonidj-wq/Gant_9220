@@ -113,12 +113,12 @@ function downloadICS(event) {
   const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
 
-  if (isIOS()) {
-    // Safari on iOS — direct navigation triggers Calendar app
+  // iOS Safari + Android: navigate directly — OS handles the .ics and opens Calendar
+  // Desktop: force download with filename
+  if (isIOS() || /android/i.test(navigator.userAgent)) {
     window.location.href = url;
     setTimeout(() => URL.revokeObjectURL(url), 3000);
   } else {
-    // Desktop / Android — download file
     const a    = document.createElement('a');
     a.href     = url;
     a.download = `${event.name.replace(/[^\w֐-׿ ]/g, '_')}.ics`;
