@@ -95,13 +95,38 @@ function generateICS(event) {
   ].filter(l => l !== '').join('\r\n');
 }
 
+function isIOS() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+}
+
+function isIOSChrome() {
+  return isIOS() && /CriOS/i.test(navigator.userAgent);
+}
+
 function downloadICS(event) {
-  const ics = generateICS(event);
+  if (isIOSChrome()) {
+    showToast('פתח את האתר ב-Safari כדי להוסיף ליומן');
+    return;
+  }
+
+  const ics  = generateICS(event);
   const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
   const url  = URL.createObjectURL(blob);
-  // Direct navigation triggers Calendar app on iOS instead of opening a tab
-  window.location.href = url;
-  setTimeout(() => URL.revokeObjectURL(url), 3000);
+
+  if (isIOS()) {
+    // Safari on iOS — direct navigation triggers Calendar app
+    window.location.href = url;
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+  } else {
+    // Desktop / Android — download file
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `${event.name.replace(/[^\w֐-׿ ]/g, '_')}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 }
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -318,6 +343,19 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 icsBtn.addEventListener('click', () => { if (activeEvent) downloadICS(activeEvent); });
 
 // ── Utility ──────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = `
+    position:fixed; bottom:24px; right:50%; transform:translateX(50%);
+    background:#333; color:#fff; padding:12px 20px; border-radius:8px;
+    font-size:0.88rem; z-index:9999; text-align:center; max-width:280px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.4);
+  `;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
 function escHtml(str) {
   return String(str)
     .replace(/&/g, '&amp;')
