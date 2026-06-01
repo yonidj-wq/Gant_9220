@@ -101,11 +101,11 @@ function downloadICS(event) {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `${event.name.replace(/[^\w֐-׿ ]/g, '_')}.ics`;
+  // No `download` attribute — browser opens with default calendar app
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 // ── State ────────────────────────────────────────────────────────────────────
