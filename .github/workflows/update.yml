@@ -3,7 +3,7 @@ name: Update events from Excel
 on:
   push:
     paths:
-      - '**/*.xlsx'   # any Excel file anywhere in the repo
+      - '**/*.xlsx'
 
 jobs:
   parse:
@@ -22,25 +22,17 @@ jobs:
       - name: Install dependencies
         run: pip install openpyxl
 
-      - name: Find and run parser
-        run: |
-          # Find the Excel file wherever it is
-          XLSX=$(find . -name "*.xlsx" | head -1)
-          echo "Found Excel: $XLSX"
+      - name: Run parser
+        run: python parse_gantt.py
 
-          # Find parse_gantt.py wherever it is
-          PARSER=$(find . -name "parse_gantt.py" | head -1)
-          echo "Found parser: $PARSER"
-
-          # Run from the directory containing the Excel
-          cd "$(dirname "$XLSX")"
-          python "$(realpath "$PARSER")"
+      - name: Show result
+        run: cat data/events.json | head -20
 
       - name: Commit updated events.json
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A
-          git diff --cached --quiet && echo "No changes" && exit 0
+          git add data/events.json
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "auto: update events from Excel"
           git push
