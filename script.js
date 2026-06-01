@@ -97,15 +97,9 @@ function generateICS(event) {
 
 function downloadICS(event) {
   const ics = generateICS(event);
-  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  // No `download` attribute — browser opens with default calendar app
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  // data: URI opens the Calendar app directly on iOS Safari
+  const uri = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+  window.open(uri, '_blank');
 }
 
 // ── State ────────────────────────────────────────────────────────────────────
