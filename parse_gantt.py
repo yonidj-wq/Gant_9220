@@ -18,7 +18,12 @@ except ImportError:
     sys.exit(1)
 
 XLSX_FILE   = 'גאנט.xlsx'
-OUTPUT_FILE = os.path.join('gantt-site', 'data', 'events.json')
+# Support both local layout (gantt-site/data/) and GitHub repo layout (data/)
+_script_dir = os.path.dirname(os.path.abspath(__file__))
+if os.path.isdir(os.path.join(_script_dir, 'gantt-site', 'data')):
+    OUTPUT_FILE = os.path.join(_script_dir, 'gantt-site', 'data', 'events.json')
+else:
+    OUTPUT_FILE = os.path.join(_script_dir, 'data', 'events.json')
 
 # Theme index → category name (based on Google Sheets / Office accent colours)
 THEME_CAT = {
